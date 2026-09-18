@@ -46,7 +46,7 @@ if not os.getenv("GROQ_API_KEY"):
     st.stop()
 
 # Import only after the key is confirmed present.
-from shopping_agent import agent, DB_PATH, is_shopping_related, OFF_TOPIC_REPLY  # noqa: E402
+from shopping_agent2 import agent, DB_PATH, is_shopping_related, OFF_TOPIC_REPLY  # noqa: E402
 
 # ----------------------------------------------------------------------
 # Session state
