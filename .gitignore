@@ -1,0 +1,8 @@
+.env
+.venv
+uploaded_images
+app.py
+setup_db.py
+shopping_agent.py
+__pycache__/
+*.pyc
