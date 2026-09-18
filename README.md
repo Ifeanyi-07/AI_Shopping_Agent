@@ -1,6 +1,8 @@
 # 🛒 Shopping Assistant
 
-An AI shopping agent built with LangChain and Groq. It can search a product catalog, check ratings, place orders, remember your standing preferences, summarize your order history, and even look up products from a photo — available both as a command-line chatbot and a Streamlit web app.
+An AI shopping agent built with LangChain and Groq. It can search a product catalog, check ratings, place orders, remember your standing preferences, summarize your order history, and even look up products from a photo — available both as a command-line chatbot and a deployed Streamlit web app.
+
+**🔗 Live app:** https://shopping-app-production.up.railway.app/
 
 ---
 
@@ -13,6 +15,7 @@ An AI shopping agent built with LangChain and Groq. It can search a product cata
 - **Standing preferences** — tell it once ("I always want organic", "never show me anything over $20") and it's applied automatically to future searches, across sessions.
 - **Input guardrail** — off-topic requests (general trivia, coding help, poems, etc.) are politely redirected before they ever reach the agent.
 - **Evals included** — a tool-call accuracy test and an LLM-as-judge response quality test, so you can check the agent still behaves correctly after changes.
+- API key is read only from the server environment — never shown, editable, or shared in the UI.
 
 > ⚠️ This is a demo/learning project. Orders aren't fulfilled by a real store — they're recorded locally in `store.db`.
 
@@ -22,16 +25,20 @@ An AI shopping agent built with LangChain and Groq. It can search a product cata
 
 ```
 .
+├── app2.py                         # Streamlit web UI (entry point)
 ├── shopping_agent.py               # Core agent: tools, system prompt, guardrail, CLI chat loop
-├── streamlit_app.py                # Streamlit web UI for the same agent
-├── reviews_api.py                  # Your existing ratings/reviews lookup module
+├── reviews_api.py                  # Ratings/reviews lookup module
 ├── store.db                        # SQLite database: products, reviews, orders, preferences
 ├── requirements_shopping_app.txt   # Python dependencies
+├── Procfile                        # Railway start command
+├── .gitignore                      # Keeps .env and runtime files out of git
 ├── eval/
 │   ├── tool_call_accuracy_eval.py  # Checks the agent calls the right tool with the right args
 │   └── response_quality_eval.py    # LLM-as-judge scoring of response quality
 └── README.md                       # This file
 ```
+
+> Note: the Streamlit entry point is named `app2.py` in this repo (renamed during setup). If you rename it again, remember to update the Procfile's start command (and Railway's dashboard "Custom Start Command" if one is set — it overrides the Procfile).
 
 ---
 
@@ -43,7 +50,7 @@ An AI shopping agent built with LangChain and Groq. It can search a product cata
 
 ---
 
-## Setup
+## Local setup
 
 1. **Clone the repo and enter the project folder**
    ```bash
@@ -68,11 +75,10 @@ An AI shopping agent built with LangChain and Groq. It can search a product cata
    ```
    GROQ_API_KEY=your_key_here
    ```
-   (For the Streamlit app, you can alternatively paste the key into the sidebar at runtime instead of using `.env`.)
 
 ---
 
-## Running the app
+## Running locally
 
 ### Command line
 ```bash
@@ -82,7 +88,7 @@ Chat directly in the terminal. Type `quit` or `exit` to leave.
 
 ### Streamlit web app
 ```bash
-streamlit run streamlit_app.py
+streamlit run app2.py
 ```
 Opens in your browser, usually at `http://localhost:8501`. Includes:
 - A chat window with full conversation memory
@@ -121,6 +127,21 @@ order history and preferences. Is there something you'd like to shop for?
 
 ---
 
+## Deployment (Railway)
+
+This app is deployed on [Railway](https://railway.app). To deploy your own copy:
+
+1. Push `app2.py`, `shopping_agent.py`, `reviews_api.py`, `store.db`, `requirements_shopping_app.txt`, and `Procfile` to a GitHub repo.
+2. On Railway: **New Project → Deploy from GitHub repo** and select the repo.
+3. In the project's **Variables** tab, add `GROQ_API_KEY` with your real key. This is the only place the key lives — it's read from the environment, never entered or displayed anywhere in the app.
+4. Check **Settings → Deploy** for a **Custom Start Command** field. If one is set, it overrides the Procfile — make sure it matches (or clear it and let Railway use the Procfile instead):
+   ```
+   web: streamlit run app2.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+   ```
+5. Once the deploy is **Active**, go to **Settings → Networking → Generate Domain** to get a public URL.
+
+---
+
 ## Running the evals
 
 ```bash
@@ -131,7 +152,7 @@ python eval/response_quality_eval.py
 - **Tool call accuracy** — runs a fixed set of queries and checks the agent called the expected tool with the expected arguments (e.g. `"organic honey under $20"` → `search_products(is_organic=True, max_price=20)`).
 - **Response quality** — uses an LLM judge to score each response 1–5 on relevance, correctness, and format compliance, then prints per-test and average scores.
 
-Re-run these after changing the system prompt, tools, or model to catch regressions.
+These aren't required for the app to run — they're standalone checks you run locally or in CI to catch regressions after changing the system prompt, tools, or model.
 
 ---
 
@@ -144,12 +165,9 @@ Re-run these after changing the system prompt, tools, or model to catch regressi
 
 ## Security notes
 
-- Your API key is **never hardcoded** in the source code — it's read from `.env` or entered at runtime.
-- Add a `.gitignore` entry before pushing to GitHub so your key is never committed:
-  ```
-  .env
-  ```
-- If sharing this repo publicly, include a `.env.example` with a placeholder value instead of a real key.
+- The API key is **never hardcoded** and **never entered through the UI** — it's read exclusively from the `GROQ_API_KEY` environment variable (`.env` locally, a Railway variable in production).
+- `.gitignore` excludes `.env` and the `uploaded_images/` folder created at runtime.
+- If forking or sharing this repo, set your own `GROQ_API_KEY` in your own environment — don't hardcode it anywhere.
 
 ---
 
