@@ -1,4 +1,4 @@
-# 🛒 Shopping Assistant
+# 🛒 Shopping Assistant.
 
 An AI shopping agent built with LangChain and Groq. It can search a product catalog, check ratings, place orders, remember your standing preferences, summarize your order history, and even look up products from a photo — available both as a command-line chatbot and a deployed Streamlit web app.
 
@@ -26,19 +26,16 @@ An AI shopping agent built with LangChain and Groq. It can search a product cata
 ```
 .
 ├── app2.py                         # Streamlit web UI (entry point)
-├── shopping_agent.py               # Core agent: tools, system prompt, guardrail, CLI chat loop
+├── shopping_agent2.py               # Core agent: tools, system prompt, guardrail, CLI chat loop
 ├── reviews_api.py                  # Ratings/reviews lookup module
 ├── store.db                        # SQLite database: products, reviews, orders, preferences
-├── requirements_shopping_app.txt   # Python dependencies
+├── requirements.txt   # Python dependencies
 ├── Procfile                        # Railway start command
 ├── .gitignore                      # Keeps .env and runtime files out of git
-├── eval/
-│   ├── tool_call_accuracy_eval.py  # Checks the agent calls the right tool with the right args
-│   └── response_quality_eval.py    # LLM-as-judge scoring of response quality
+├── tool_call_accuracy_eval.py  # Checks the agent calls the right tool with the right args
+│── response_quality_eval.py    # LLM-as-judge scoring of response quality
 └── README.md                       # This file
 ```
-
-> Note: the Streamlit entry point is named `app2.py` in this repo (renamed during setup). If you rename it again, remember to update the Procfile's start command (and Railway's dashboard "Custom Start Command" if one is set — it overrides the Procfile).
 
 ---
 
@@ -66,7 +63,7 @@ An AI shopping agent built with LangChain and Groq. It can search a product cata
 
 3. **Install dependencies**
    ```bash
-   pip install -r requirements_shopping_app.txt
+   pip install -r requirements.txt
    ```
 
 4. **Add your API key**
@@ -131,7 +128,7 @@ order history and preferences. Is there something you'd like to shop for?
 
 This app is deployed on [Railway](https://railway.app). To deploy your own copy:
 
-1. Push `app2.py`, `shopping_agent.py`, `reviews_api.py`, `store.db`, `requirements_shopping_app.txt`, and `Procfile` to a GitHub repo.
+1. Push `app2.py`, `shopping_agent2.py`, `reviews_api.py`, `store.db`, `requirements.txt`, and `Procfile` to a GitHub repo.
 2. On Railway: **New Project → Deploy from GitHub repo** and select the repo.
 3. In the project's **Variables** tab, add `GROQ_API_KEY` with your real key. This is the only place the key lives — it's read from the environment, never entered or displayed anywhere in the app.
 4. Check **Settings → Deploy** for a **Custom Start Command** field. If one is set, it overrides the Procfile — make sure it matches (or clear it and let Railway use the Procfile instead):
@@ -145,8 +142,8 @@ This app is deployed on [Railway](https://railway.app). To deploy your own copy:
 ## Running the evals
 
 ```bash
-python eval/tool_call_accuracy_eval.py
-python eval/response_quality_eval.py
+python tool_call_accuracy_eval.py
+python response_quality_eval.py
 ```
 
 - **Tool call accuracy** — runs a fixed set of queries and checks the agent called the expected tool with the expected arguments (e.g. `"organic honey under $20"` → `search_products(is_organic=True, max_price=20)`).
@@ -170,7 +167,3 @@ These aren't required for the app to run — they're standalone checks you run l
 - If forking or sharing this repo, set your own `GROQ_API_KEY` in your own environment — don't hardcode it anywhere.
 
 ---
-
-## License
-
-Add your license of choice here (e.g. MIT).
